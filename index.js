@@ -16,9 +16,9 @@ function doGET(myURL, response){
       
       (UserFromDB != undefined)? res = JSON.stringify(UserFromDB)
         : res = JSON.stringify({ 'err': 'User not found' });    
-        
+       
     } else {
-      res = JSON.stringify({ 'msg': 'Nothing to search.' });    
+        res = JSON.stringify({ 'msg': 'Nothing to search.' });    
     }
 
     response.end(res);
