@@ -4,9 +4,7 @@ const fs = require('fs');
 
 function doGET(myURL, response){
     
-    console.log('execute function doGET(myURL, response)');
-  
-    
+    let res = JSON.stringify({ 'msg': 'Nothing to do' })
 
     if (myURL.pathname.substr(1)) {
 
@@ -15,11 +13,17 @@ function doGET(myURL, response){
 
       userPathName = myURL.pathname.substr(1);
       let UserFromDB = users.find(item => item.name==userPathName);
-      (UserFromDB != undefined)? console.log(`User name: ${UserFromDB.name}, user age: ${UserFromDB.age}`)
-       :console.log(`User ${userPathName} not found.`); 
+      
+      (UserFromDB != undefined)? res = JSON.stringify(UserFromDB)
+        : res = JSON.stringify({ 'err': 'User not found' });    
+        
     } else {
       console.log('Nothing to find.');
+      res = JSON.stringify({ 'msg': 'Nothing to search.' });    
     }
+
+    response.end(res);
+
 };
 
 function doPOST(myURL, response){
@@ -49,6 +53,6 @@ const server = http.createServer((request, response)=>{
   methods[request.method](myURL, response);
 });
 
-server.listen(3015, function(){
+server.listen(3016, function(){
     console.log("Сервер ожидает подключения...");
 });
