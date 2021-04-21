@@ -77,15 +77,15 @@ function doGET(myURL, response){
    !checkRouteFinded ? response.end(JSON.stringify({ 'msg': 'route not founded. Try /users оr /users/someUserName' })) : '';
 };
 
-function doPOST(_myURL, response){
+function doPOST(myURL, response){
     res = JSON.stringify({ 'method': 'POST' });
     response.end(res);
 };
-function doPUT(_myURL, response){
+function doPUT(myURL, response){
     res = JSON.stringify({ 'method': 'PUT' });
     response.end(res);
 };
-function doDELETE(_myURL, response){
+function doDELETE(myURL, response){
     res = JSON.stringify({ 'method': 'DELETE' });
     response.end(res);
 };
