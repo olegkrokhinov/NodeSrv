@@ -2,53 +2,48 @@ const http = require('http');
 const url  = require('url');
 const fs = require('fs');
 const path = require('path');
+let checkRouteResult = [];
 
-
-function UrlToArr(myURL, delimiter){
-    PathName =  myURL.pathname.substr(1);
-    let arr = PathName.split('/');
-    return arr;
-};
-
-
-
-function checkRoute(myURL, pattern, strong=1) {
+function checkRoute(myURL, pattern, strong = 1) {
 
     let pathname = myURL.pathname;
-    if (pathname == pattern){
-        return [pattern.slice(1)];        
-     } else {
-         if (strong) {
-             return [];
-         }
-     }
-
-
-    arr2 = pathname.split('/');
-    arr1 = pattern.split('/');
-
     
+    if ( strong ) {
+        if ( pathname == pattern )   {
+            checkRouteResult = [pattern.slice(1) ];
+            return true;        
+        } else {  
+             checkRouteResult = [];
+             return false;
+        };
+    };
+
+    if (( !strong ) && ( pathname==pattern )) {
+        checkRouteResult = [];
+        return false;
+    };
+    
+    pathNameArray = pathname.split('/');
+    patternArray = pattern.split('/');
+
     let includes = 1;
-    arr2.forEach((item, index, array) => {
-        if ((index <= (arr1.length-1))&&(item != arr1[index])) {
+        pathNameArray.forEach((item, index, array) => {
+        if (( index <= ( patternArray.length-1 )) && ( item != patternArray[index] )) {
           includes = 0};
     });
     if (includes) {
-      return arr2.slice(arr1.length, arr2.length);
+        checkRouteResult = pathNameArray.slice( patternArray.length, pathNameArray.length );
+        return true;
     }else{
-        return [];
+        checkRouteResult = [];
+        return false;
     }
     
-//    console.log(arr1);
-//    console.log(arr2);
-  
 };    
 
 function doGET(myURL, response){
     
     let res = JSON.stringify({ 'msg': 'Nothing to do' })
-
-    urlArr = UrlToArr(myURL);
 
     // отловить Get file
     let filename = path.parse(myURL.pathname).base;    
@@ -57,39 +52,40 @@ function doGET(myURL, response){
         return;
     }; 
     
+    const data = fs.readFileSync('./users.json');
+    let users = JSON.parse(data);
+    let checkRouteFinded = 0;
 
-   if (result = checkRoute(myURL, '/', 1))
+   if (checkRoute(myURL, '/', 1)){
+       response.end(JSON.stringify({ 'msg': 'Home page. Try /users оr /users/someUserName' }));
+       checkRouteFinded = true;
+   };
 
-    pathname = myURL.pathname;
+   if (checkRoute(myURL, '/users', 1)){
+       response.end(JSON.stringify(users));
+       checkRouteFinded = true;
+   };
 
-     
-    if (myURL.pathname.substr(1)) {     
-      const data = fs.readFileSync('./users.json');
-      let users = JSON.parse(data);
-
-      userPathName = myURL.pathname.substr(1);
-      let UserFromDB = users.find(item => item.name==userPathName);
+   if (checkRoute(myURL, '/users', 0)){
+    let UserFromDB = users.find(item => item.name==checkRouteResult[0]);
       
-      (UserFromDB != undefined)? res = JSON.stringify(UserFromDB)
-        : response.end(JSON.stringify({ 'err': 'User not found' }));    
-       
-    } else {
-        response.end(JSON.stringify({ 'msg': 'Nothing to search.' }));    
-    }
+    (UserFromDB != undefined)? response.end(JSON.stringify(UserFromDB))
+      : response.end(JSON.stringify({ 'err': 'User not found' }));
+      checkRouteFinded = true;
+   };
 
-
-
+   !checkRouteFinded ? response.end(JSON.stringify({ 'msg': 'route not founded. Try /users оr /users/someUserName' })) : '';
 };
 
-function doPOST(myURL, response){
+function doPOST(_myURL, response){
     res = JSON.stringify({ 'method': 'POST' });
     response.end(res);
 };
-function doPUT(myURL, response){
+function doPUT(_myURL, response){
     res = JSON.stringify({ 'method': 'PUT' });
     response.end(res);
 };
-function doDELETE(myURL, response){
+function doDELETE(_myURL, response){
     res = JSON.stringify({ 'method': 'DELETE' });
     response.end(res);
 };
@@ -99,7 +95,7 @@ const server = http.createServer((request, response)=>{
 
   const baseURL = 'http://' + request.headers.host + '/';
   const myURL = new URL(request.url,baseURL);
-  //console.log(myURL);
+  
   
   methods = {
     "GET":    doGET,
