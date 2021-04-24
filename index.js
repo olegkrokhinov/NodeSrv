@@ -1,6 +1,9 @@
-const expless = require('express');
-const app = expless();
+const express = require('express');
+const app = express();
 const users = require('./users')
+
+app.use(express.json()) // for parsing application/json
+app.use(express.urlencoded({ extended: true }))
 
 app.use('/users', users);    
 
