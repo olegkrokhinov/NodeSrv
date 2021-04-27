@@ -1,32 +1,27 @@
 const express = require('express');
 const app = express();
-const users = require('./users')
-
-const MongoClient = require("mongodb").MongoClient;
-const mongoClient = new MongoClient("mongodb://localhost:27017/", { useUnifiedTopology: true });
-let dbClient;
+const mongoose = require('mongoose');
+const usersRouter = require('./userRouter')
 
 
-app.use(express.json()) // for parsing application/json
+app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
-app.use('/users', users);    
-
-app.use(function (req, res, next) {
+app.use('/users', usersRouter);    
+app.use((req, res, next) => {
     res.send(`The route ${req.path} can't be found`);
   });
 
-
-mongoClient.connect(function(err, client){
-  if(err) return console.log(err);
-  dbClient = client;
-  app.locals.db = client.db("NodeSrv");
-  app.listen(3000, function(){
-    console.log(`Waiting for connections ...`);
-  });
+mongoose.connect('mongodb://localhost/NodeSrv', {useNewUrlParser: true, useUnifiedTopology: true});
+const db = mongoose.connection;
+db.on('error', console.error.bind(console, 'connection error:'));
+db.once('open', () => {
+  app.listen(3000, function(){
+  console.log(`Waiting for connections ...`);
+});
 });
 
 process.on("SIGINT", () => {
-  dbClient.close();
+  mongoose.disconnect(); 
   process.exit();
 });
