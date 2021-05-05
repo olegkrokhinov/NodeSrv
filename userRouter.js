@@ -5,80 +5,89 @@ require('./userModel');
 const mongoose = require('mongoose');
 const userModel = mongoose.model('User');
 
+
+
 router.get('/', (req, res, next) => {
+  
+  userModel.find((err, users)=>{
+    if(err) return res.send(err);
+    res.send(users);
+  });
+
+});
+
+router.get('/:user', (req, res, next) => {
     
-    userModel.find((err, users)=>{
-        if(err) return console.log(err);
-        res.send(users);
-    });
-
-});
-
-router.get('/:User', (req, res, next) => {
-    
-    userModel.find({name : req.params.User}, (err, users) => {
-        if(err) return console.log(err);
-        res.send(users);
-    });
+  userModel.find({_id : req.body.userId}, (err, users) => {
+    if(err) return res.send(err);
+    res.send(users);
+  });
     
 });
 
-router.get('/:User/friends', (req, res, next) => {
+router.put('/:user', (req, res, next) => {
     
-    userModel.findOne({name : req.params.User}, (err, user) => {
-        if(err) return console.log(err);
-        res.send(user.friends);
-    });  
+  userModel.findOneAndUpdate({_id: req.body.userId}, {name : req.body.name, age: req.body.age}, (err, user) => {
+    if(err) return res.send(err);
+    res.send(user ? user.value : `User ${req.body.name} not found.`);
+  });             
 
 });
 
-router.put('/updateUser', (req, res, next) => {
+router.post('/', (req, res, next) => {
+
+  let user = new userModel({name: req.body.name,age: req.body.age});
+  user.save((err, user) => {
+    if(err) return res.send(err);
+    res.send(user);
+  });                       
+
+});
+
+router.delete('/', (req, res, next) => {
     
-    userModel.findOneAndUpdate({name : req.body.name}, {age: req.body.age}, (err, user) => {
-        if(err) return console.log(err);
-        res.send(user ? user.value : `User ${req.body.name} not found.`);
-    });             
-});
-
-router.post('/approveFriend', (req, res, next) => {
-    userModel.findUser_And_ApproveFriend(req.body.userId, req.body.friendId, (err, friend)=>{
-        if(err) return console.log(err);
-        res.send(friend); 
-    });
-});
-
-
-router.post('/addUser', (req, res, next) => {
-
-    let user = new userModel({name: req.body.name,age: req.body.age});
-    user.save((err, user) => {
-            if(err) return console.log(err);
-            res.send(user);
-        });                       
+  userModel.findOneAndDelete({_id: req.body.userId}, (err,user) => {
+    if(err) return res.send(err);
+    res.send(user ? user.value : `User ${req.body.name} not found.`);
+  });      
 
 });
 
-router.post('/addFriendRequest', (req, res, next) => {
-    userModel.findUser_And_AddFriendRequest(req.body.userId, req.body.friendId, (err, friend)=>{
-        if(err) return console.log(err);
-        res.send(friend); 
-    });
-});
-
-router.delete('/deleteFriend', (req, res, next) => {
-    userModel.findUser_And_DeleteFriend(req.body.userId, req.body.friendId, (err, friend) =>{
-        if(err) return console.log(err);
-        res.send(friend); 
-    });
-});
-
-router.delete('/deleteUser', (req, res, next) => {
+router.get('/:user/friends', (req, res, next) => {
     
-    userModel.findOneAndDelete({name : req.body.name}, (err,user) => {
-        if(err) return console.log(err);
-        res.send(user ? user.value : `User ${req.body.name} not found.`);
-    });      
+  userModel.findOne({_id : req.body.userId}, (err, user) => {
+    if(err) return res.send(err);
+    res.send(user.friends);
+  });  
 
 });
+
+router.post('/:User/friends', (req, res, next) => {
+
+  userModel.addFriendRequestToUser(req.body.userId, req.body.friendId, (err, friend)=>{
+    if(err) return res.send(err);
+    res.send(friend); 
+  });
+
+});
+
+router.put('/:user/friends', (req, res, next) => {
+
+  userModel.approveFirendRequestForUser(req.body.userId, req.body.friendId, (err, friend)=>{
+    if(err) return res.send(err);
+    res.send(friend); 
+  });
+
+});
+
+router.delete('/:user/friends', (req, res, next) => {
+
+  userModel.deleteFriendRequestFromUser(req.body.userId, req.body.friendId, (err, friend) =>{
+    if (err) return res.send(err);
+    res.send(friend); 
+  });
+
+});
+
 
 module.exports = router;

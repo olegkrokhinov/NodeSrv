@@ -1,106 +1,167 @@
 const mongoose = require('mongoose');
 
-const friendSchema = new mongoose.Schema({
-  friendId : mongoose.SchemaTypes.ObjectId,
-  approved : {
-    type: Boolean,
-    default : false
-  }
-});
+const FRІEND_ALREADY_EXISTS = 'Friend (friend request) already exists.';
+const FRIEND_NOT_FOUND = 'Friend (friend request) not found.';
+const USER_NOT_FOUND = 'User not found.';
+
+
+
+// const friendSchema = new mongoose.Schema({
+//   friendId : mongoose.SchemaTypes.ObjectId,
+//   approved : {
+//     type: Boolean,
+//     default : false
+//   }
+// });
 
 const userSchema = new mongoose.Schema({
   name: String,
   age: Number,
-  friends: [friendSchema],  
+  friends: [{
+    friendId: {
+      type: mongoose.Schema.Types.ObjectId, 
+      ref: 'userShema'},
+    approved: Boolean
+  }]
+
+//  friends: [friendSchema],  
 });
 
 
-userSchema.methods.friendRequestAdd = function(friendId, cb) {
-  
-  let friend =  this.friends.find(item => {(item.friendId == friendId)});
+userSchema.methods.addFriendRequest = function(friendId, callback) {
+  err = '';
+  let friend =  this.friends.find(item => item.friendId == friendId);
+
   if (!friend) {
-    newFriend = new (mongoose.model('Friend', friendSchema))({friendId : friendId});
-    this.friends.push(newFriend);
+    friend = {friendId: friendId, approved: 0};
+    this.friends.push(friend);
     this.save();
-    cb('', newFriend);
   } else {
-    cb('', friend);
+      err = FREND_ALREADY_EXISTS;  
   }
+
+  callback? callback(err, friend) : '';
+  return friend;
 };
 
-userSchema.methods.friendRequestApprove = function(friendId, cb) {
- 
-  let friend =  this.friends.find(item => {
-    return (item.friendId == friendId);
-  });
+userSchema.methods.approveFriendRequest = function(friendId, callback) { 
+  err = '';
+  let friend =  this.friends.find(item => item.friendId == friendId);
+  
   if (friend) {
     friend.approved = true; // approved
      this.save();
-     cb('', friend);
   } else {
-    cb('', {})
+    err = FRIEND_NOT_FOUND;  
   };
+
+  callback? callback(err, friend) : '';
+  return friend;
 };
 
-userSchema.methods.friendDelete = function(friendId, cb) {
-  ;
-  let friendArrIndex= this.friends.findIndex(item => item.friendId == friendId);
-  //let friend = this.friends[friendArrIndex];
+userSchema.methods.deleteFriendRequest = function(friendId, callback) {
+  err = '';
+  let friend;
+  let friendArrayIndex= this.friends.findIndex(item => item.friendId == friendId);
   
-  if (friendArrIndex >= 0) {
-    this.friends.splice(friendArrIndex, 1);
+  if (friendArrayIndex >= 0) {
+    this.friends.splice(friendArrayIndex, 1);
     this.save(); 
-    cb('', {}); 
   } else {
-    cb('', {});
+    err = FRIEND_NOT_FOUND;  
   };
-};
-
-userSchema.methods.aboutMe = function () {
-  console.log('user method aboutMe');
-};
-
-userSchema.statics.findUser_And_AddFriendRequest = function(userId, friendId, cb) {
   
-  this.findById( userId, (err, user)=>{
-    if(err) return console.log(err);
-    user.friendRequestAdd(friendId, (err, friend)=>{
-      if(err) return console.log(err);
-      cb('', friend);
-    });
-  });
-
-  //doc.set('socialHandles.stackOverflow', 'vkarpov15'); 
-  //doc.get('socialHandles.stackOverflow')); 
-
+  callback? callback(err, friend) : '';
+  return friend;
 };
 
-userSchema.statics.findUser_And_ApproveFriend = function(userId, friendId, cb) {
+userSchema.statics.addFriendRequestToUser = function(userId, friendId, callback) { 
+  let err = '';
+  let friend;
+  let user;
 
-  this.findById( userId, (err, user)=>{
-    if(err) return console.log(err);
-    user.friendRequestApprove(friendId, (err, friend)=>{
-    if(err) return console.log(err);
-    cb('', friend);
-  });
-
-  });
-};
-
-userSchema.statics.findUser_And_DeleteFriend = function(userId, friendId, cb) {
-
-  this.findById( userId, (err, user)=>{
-    if(err) return console.log(err);
+  user = this.find(userId).exec();
+console.log(user);
+  if (user) {
     
-   user.friendDelete(friendId, (err, friend)=>{
-    if(err) return console.log(err);
-    cb('', friend);
-  });
+    user.addFriendRequest(friendId, (_err, _friend) => {
+      err = _err;
+      friend = _friend;
+    });
+  } else {
+      err = USER_NOT_FOUND; 
+  };
 
-  });
+  callback? callback(err, friend) : '';
+  return friend;
 };
 
+// userSchema.statics.addFriendRequestToUser = function(userId, friendId, callback) { 
+//   let err = '';
+//   let friend;
+//  // let user;
 
+//   this.find(userId, (_err, _user) => {
+//       let user = _user;
+//   });
+
+//   if (user) {
+    
+//     user.addFriendRequest(friendId, (_err, _friend) => {
+//       err = _err;
+//       friend = _friend;
+//     });
+//   } else {
+//       err = USER_NOT_FOUND; 
+//   };
+
+//   callback? callback(err, friend) : '';
+//   return friend;
+// };
+
+
+userSchema.statics.approveFriendRequestForUser = function(userId, friendId, callback) { 
+  let err = '';
+  let friend;
+  let user;
+  this.findById(userId, (_err, _user) => {
+      user = _user;    
+  });
+
+  if (user) {
+    user.approveFriendRequest(friendId, (_err, _friend) => {
+      err = _err;
+      friend = _friend;
+    });
+  } else {
+      err = USER_NOT_FOUND; 
+  };
+
+  callback? callback(err, friend) : '';
+  return friend;
+};
+
+userSchema.statics.deleteFriendRequestFromUser = function(userId, friendId, callback) {
+  err = '';
+  let friend;
+  let user;
+  this.findById(userId, (_err, _user) => {
+    user = _user;    
+  });
+  
+  if(user) {
+    console.log(user);
+    user.deleteFriendRequest(friendId, (_err, _friend) => {
+      err = _err;
+      friend = _friend;
+    });
+  } else {
+      err = USER_NOT_FOUND; 
+  };
+
+  callback? callback(err, friend) : '';
+  return friend;
+};
 
 
 const userModel = mongoose.model('User', userSchema, 'users');
