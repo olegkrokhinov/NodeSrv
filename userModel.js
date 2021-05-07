@@ -1,18 +1,18 @@
 const mongoose = require('mongoose');
 
 
+const FRIEND_STATUS_REQUEST = 'request';
+const FRIEND_STATUS_APPROVED = 'approved';
+const FRIEND_STATUS_REJECTED = 'rejected';
+
 const ERROR_FRІEND_ALREADY_REQUESTED = 'Friend (friend request) already requested.';
 const ERROR_FRІEND_ALREADY_APPROVED = 'Friend (friend request) already approved.';
 const ERROR_FRІEND_REJECTED = 'Friend (friend request) rejected.'
 const ERROR_FRІEND_ALREADY_REJECTED = 'Friend (friend request) alredy rejected.'
-
 const ERROR_FRIEND_NOT_FOUND = 'Friend (friend request) not found.';
+
 const ERROR_USER_NOT_FOUND = 'User not found.';
 const ERROR_FAILED_TO_SAVE_USER = 'Failed to save user to database';
-
-const FRIEND_STATUS_REQUEST = 'request';
-const FRIEND_STATUS_APPROVED = 'approved';
-const FRIEND_STATUS_REJECTED = 'rejected';
 
 
 const userSchema = new mongoose.Schema({
@@ -112,16 +112,13 @@ userSchema.methods.deleteFriendRequest = function(friendId) {
 };
 
 userSchema.statics.findUserAndDoAnActionWithFriend = function(userId, friendId, actionWithFriend) {
-  ERROR_FAILED_TO_SAVE_USER
+  return new Promise((resolve, reject)=>{    
+      this.findById(userId)
       .catch(()=>{throw new Error(ERROR_USER_NOT_FOUND)}) 
       .then((user)=>{return user[actionWithFriend](friendId)})
       .catch(reject)
       .then(resolve);
+  });
 };
 
-
-
-
-mongoose.model('User', userSchema, 'users');
-//const userModel = mongoose.model('User', userSchema, 'users');
-//module.exports = userModel;
+module.exports = mongoose.model('User', userSchema, 'users');

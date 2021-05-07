@@ -1,10 +1,7 @@
 const express =  require('express');
 const router = express.Router();
 
-const mongoose = require('mongoose');
-const userShema = require('./userModel');
-const userModel = mongoose.model('User');
-
+const userModel = require('./userModel');
 
 
 router.get('/', (req, res, next) => {
