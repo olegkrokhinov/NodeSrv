@@ -1,18 +1,19 @@
 const mongoose = require('mongoose');
 
-const FRІEND_ALREADY_EXISTS = 'Friend (friend request) already exists.';
-const FRIEND_NOT_FOUND = 'Friend (friend request) not found.';
-const USER_NOT_FOUND = 'User not found.';
 
+const ERROR_FRІEND_ALREADY_REQUESTED = 'Friend (friend request) already requested.';
+const ERROR_FRІEND_ALREADY_APPROVED = 'Friend (friend request) already approved.';
+const ERROR_FRІEND_REJECTED = 'Friend (friend request) rejected.'
+const ERROR_FRІEND_ALREADY_REJECTED = 'Friend (friend request) alredy rejected.'
 
+const ERROR_FRIEND_NOT_FOUND = 'Friend (friend request) not found.';
+const ERROR_USER_NOT_FOUND = 'User not found.';
+const ERROR_FAILED_TO_SAVE_USER = 'Failed to save user to database';
 
-// const friendSchema = new mongoose.Schema({
-//   friendId : mongoose.SchemaTypes.ObjectId,
-//   approved : {
-//     type: Boolean,
-//     default : false
-//   }
-// });
+const FRIEND_STATUS_REQUEST = 'request';
+const FRIEND_STATUS_APPROVED = 'approved';
+const FRIEND_STATUS_REJECTED = 'rejected';
+
 
 const userSchema = new mongoose.Schema({
   name: String,
@@ -21,152 +22,106 @@ const userSchema = new mongoose.Schema({
     friendId: {
       type: mongoose.Schema.Types.ObjectId, 
       ref: 'userShema'},
-    approved: Boolean
+    status: String, 
   }]
-
-//  friends: [friendSchema],  
 });
 
+userSchema.methods.addFriendRequest = function(friendId) {
+  
+  return new Promise((resolve, reject)=>{
+    let friend =  this.friends.find(item => item.friendId == friendId);
+   
+    if (!friend) {
+      friend = {friendId: friendId, status: FRIEND_STATUS_REQUEST};
+      this.friends.push(friend);
+      this.save();
+      resolve(friend);
+    };
+        
+    switch(friend.status) {
+      case FRIEND_STATUS_REQUEST  : reject(new Error(ERROR_FRІEND_ALREADY_REQUESTED)); 
+      case FRIEND_STATUS_APPROVED : reject(new Error(ERROR_FRІEND_ALREADY_APPROVED)); 
+      case FRIEND_STATUS_REJECTED  : reject(new Error(ERROR_FRІEND_REJECTED));                 
+    };
 
-userSchema.methods.addFriendRequest = function(friendId, callback) {
-  err = '';
-  let friend =  this.friends.find(item => item.friendId == friendId);
-
-  if (!friend) {
-    friend = {friendId: friendId, approved: 0};
-    this.friends.push(friend);
-    this.save();
-  } else {
-      err = FREND_ALREADY_EXISTS;  
-  }
-
-  callback? callback(err, friend) : '';
-  return friend;
+  });
 };
 
-userSchema.methods.approveFriendRequest = function(friendId, callback) { 
-  err = '';
-  let friend =  this.friends.find(item => item.friendId == friendId);
+userSchema.methods.approveFriendRequest = function(friendId) { 
   
-  if (friend) {
-    friend.approved = true; // approved
-     this.save();
-  } else {
-    err = FRIEND_NOT_FOUND;  
-  };
+  return new Promise((resolve, reject)=>{
+    let friend =  this.friends.find(item => item.friendId == friendId);
+    if (friend) {
+      switch(friend.status) {
+        case FRIEND_STATUS_APPROVED : {
+          reject(new Error(ERROR_FRІEND_ALREADY_APPROVED)); 
+          break;
+        }
+        default  : {
+          friend.status = FRIEND_STATUS_APPROVED;
+          this.save();
+          resolve(friend);
+        };
+      };
+    } else {
+        reject(new Error(ERROR_FRIEND_NOT_FOUND)); 
+    };
 
-  callback? callback(err, friend) : '';
-  return friend;
-};
+  });
+};  
 
-userSchema.methods.deleteFriendRequest = function(friendId, callback) {
-  err = '';
-  let friend;
-  let friendArrayIndex= this.friends.findIndex(item => item.friendId == friendId);
+userSchema.methods.rejectFriendRequest = function(friendId){
   
-  if (friendArrayIndex >= 0) {
-    this.friends.splice(friendArrayIndex, 1);
-    this.save(); 
-  } else {
-    err = FRIEND_NOT_FOUND;  
-  };
-  
-  callback? callback(err, friend) : '';
-  return friend;
-};
-
-userSchema.statics.addFriendRequestToUser = function(userId, friendId, callback) { 
-  let err = '';
-  let friend;
-  let user;
-
-  user = this.find(userId).exec();
-console.log(user);
-  if (user) {
+  return new Promise((resolve, reject)=>{
     
-    user.addFriendRequest(friendId, (_err, _friend) => {
-      err = _err;
-      friend = _friend;
-    });
-  } else {
-      err = USER_NOT_FOUND; 
-  };
+    let friendArrayIndex= this.friends.findIndex(item => item.friendId == friendId);
+    if (friendArrayIndex >= 0) {
+        let friend = this.friends[friendArrayIndex];
+        switch(friend.status) {
+        case FRIEND_STATUS_REJECTED : {
+          reject(new Error(ERROR_FRІEND_ALREADY_REJECTED)); 
+          brake
+        }; 
+        default : {
+          friend.status = FRIEND_STATUS_REJECTED;
+          this.save();
+          resolve(friend);
+        };
+      };
+    } else {
+          reject(new Error(ERROR_FRIEND_NOT_FOUND)); 
+    };
 
-  callback? callback(err, friend) : '';
-  return friend;
+  });
 };
 
-// userSchema.statics.addFriendRequestToUser = function(userId, friendId, callback) { 
-//   let err = '';
-//   let friend;
-//  // let user;
+userSchema.methods.deleteFriendRequest = function(friendId) {
 
-//   this.find(userId, (_err, _user) => {
-//       let user = _user;
-//   });
+  return new Promise((resolve, reject)=>{
 
-//   if (user) {
-    
-//     user.addFriendRequest(friendId, (_err, _friend) => {
-//       err = _err;
-//       friend = _friend;
-//     });
-//   } else {
-//       err = USER_NOT_FOUND; 
-//   };
-
-//   callback? callback(err, friend) : '';
-//   return friend;
-// };
-
-
-userSchema.statics.approveFriendRequestForUser = function(userId, friendId, callback) { 
-  let err = '';
-  let friend;
-  let user;
-  this.findById(userId, (_err, _user) => {
-      user = _user;    
+    let friendArrayIndex= this.friends.findIndex(item => item.friendId == friendId);
+    if (friendArrayIndex >= 0) {
+      this.friends.splice(friendArrayIndex, 1);
+      this.save(); 
+      resolve(friend);
+    } else {
+      reject(new Error(ERROR_FRIEND_NOT_FOUND)); 
+    }; 
   });
 
-  if (user) {
-    user.approveFriendRequest(friendId, (_err, _friend) => {
-      err = _err;
-      friend = _friend;
-    });
-  } else {
-      err = USER_NOT_FOUND; 
-  };
-
-  callback? callback(err, friend) : '';
-  return friend;
 };
 
-userSchema.statics.deleteFriendRequestFromUser = function(userId, friendId, callback) {
-  err = '';
-  let friend;
-  let user;
-  this.findById(userId, (_err, _user) => {
-    user = _user;    
-  });
-  
-  if(user) {
-    console.log(user);
-    user.deleteFriendRequest(friendId, (_err, _friend) => {
-      err = _err;
-      friend = _friend;
-    });
-  } else {
-      err = USER_NOT_FOUND; 
-  };
-
-  callback? callback(err, friend) : '';
-  return friend;
+userSchema.statics.findUserAndDoAnActionWithFriend = function(userId, friendId, actionWithFriend) {
+  ERROR_FAILED_TO_SAVE_USER
+      .catch(()=>{throw new Error(ERROR_USER_NOT_FOUND)}) 
+      .then((user)=>{return user[actionWithFriend](friendId)})
+      .catch(reject)
+      .then(resolve);
 };
 
 
-const userModel = mongoose.model('User', userSchema, 'users');
 
 
-
-
-//module.exports = UserModel;
+mongoose.model('User', userSchema, 'users');
+//const userModel = mongoose.model('User', userSchema, 'users');
+//module.exports = userModel;

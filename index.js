@@ -16,7 +16,7 @@ mongoose.connect('mongodb://localhost/NodeSrv', {useNewUrlParser: true, useUnifi
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', () => {
-  app.listen(3000, function(){
+  app.listen(3003, function(){
   console.log(`Waiting for connections ...`);
 });
 });

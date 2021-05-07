@@ -1,92 +1,71 @@
 const express =  require('express');
 const router = express.Router();
 
-require('./userModel');
 const mongoose = require('mongoose');
+const userShema = require('./userModel');
 const userModel = mongoose.model('User');
 
 
 
 router.get('/', (req, res, next) => {
-  
-  userModel.find((err, users)=>{
-    if(err) return res.send(err);
-    res.send(users);
-  });
-
+  userModel.find().exec()
+    .catch((error) => res.send(error.message))   
+    .then((user) => {res.send(user)})        
 });
 
 router.get('/:user', (req, res, next) => {
-    
-  userModel.find({_id : req.body.userId}, (err, users) => {
-    if(err) return res.send(err);
-    res.send(users);
-  });
-    
+   userModel.find({_id : req.body.userId}).exec()
+     .catch((error) => res.send(error.message))   
+     .then((user) => {res.send(user)});
 });
 
 router.put('/:user', (req, res, next) => {
-    
-  userModel.findOneAndUpdate({_id: req.body.userId}, {name : req.body.name, age: req.body.age}, (err, user) => {
-    if(err) return res.send(err);
-    res.send(user ? user.value : `User ${req.body.name} not found.`);
-  });             
-
+  userModel.findOneAndUpdate({_id: req.body.userId}, {name : req.body.name, age: req.body.age}).exec()
+    .catch((error) => res.send(error.message))
+    .then((user) => {res.send(user)});
 });
 
 router.post('/', (req, res, next) => {
-
-  let user = new userModel({name: req.body.name,age: req.body.age});
-  user.save((err, user) => {
-    if(err) return res.send(err);
-    res.send(user);
-  });                       
-
+  (new userModel({name: req.body.name, age: req.body.age})).save()
+    .catch((error) => res.send(error.message))     
+    .then((user) => {res.send(user)});
 });
 
 router.delete('/', (req, res, next) => {
-    
-  userModel.findOneAndDelete({_id: req.body.userId}, (err,user) => {
-    if(err) return res.send(err);
-    res.send(user ? user.value : `User ${req.body.name} not found.`);
-  });      
-
+  userModel.findOneAndDelete({_id: req.body.userId}).exec()
+    .then((user) => {res.send(user)})
+    .catch((error) => res.send(error.message)); 
 });
 
 router.get('/:user/friends', (req, res, next) => {
-    
-  userModel.findOne({_id : req.body.userId}, (err, user) => {
-    if(err) return res.send(err);
-    res.send(user.friends);
-  });  
+  userModel.findOne({_id : req.body.userId}).exec()
+    .then((user) => {res.send(user.friends)})     //sends friends
+    .catch((error) => res.send(error.message));         //sends Error object  
+});  
 
-});
 
 router.post('/:User/friends', (req, res, next) => {
-
-  userModel.addFriendRequestToUser(req.body.userId, req.body.friendId, (err, friend)=>{
-    if(err) return res.send(err);
-    res.send(friend); 
-  });
-
+  userModel.findUserAndDoAnActionWithFriend(req.body.userId, req.body.friendId, 'addFriendRequest')
+    .then((friend) => res.send(friend))   //sends friend object
+    .catch((error)=> res.send(error.message)); //sends Error object
 });
 
-router.put('/:user/friends', (req, res, next) => {
+router.put('/:user/friends/:friend', (req, res, next) => {
+  userModel.findUserAndDoAnActionWithFriend(req.body.userId, req.body.friendId, 'approveFriendRequest')
+    .then((friend) => res.send(friend))   //sends friend object
+    .catch((error) => res.send(error.message)); //sends Error object
+});
 
-  userModel.approveFirendRequestForUser(req.body.userId, req.body.friendId, (err, friend)=>{
-    if(err) return res.send(err);
-    res.send(friend); 
-  });
-
+router.put('/:user/friends/:friend', (req, res, next) => {
+  userModel.findUserAndDoAnActionWithFriend(req.body.userId, req.body.friendId, 'rejectFriendRequest')
+    .then((friend) => res.send(friend))   //sends friend object
+    .catch((error) => res.send(error.message)); //sends Error object
 });
 
 router.delete('/:user/friends', (req, res, next) => {
-
-  userModel.deleteFriendRequestFromUser(req.body.userId, req.body.friendId, (err, friend) =>{
-    if (err) return res.send(err);
-    res.send(friend); 
-  });
-
+  userModel.findUserAndDoAnActionWithFriend(req.body.userId, req.body.friendId, 'deleteFriendRequest')
+    .then((friend) => res.send(friend))   //sends friend object
+    .catch((error) => res.send(error.message)); //sends Error object
 });
 
 
