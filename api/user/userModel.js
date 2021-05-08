@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const message =  require('./messages');
+const message =  require('./userMessages');
 
 const FRIEND_STATUS_REQUEST = 'request';
 const FRIEND_STATUS_APPROVED = 'approved';

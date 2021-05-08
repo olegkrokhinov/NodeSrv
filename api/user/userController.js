@@ -32,10 +32,9 @@ exports.deleteUser = function(req, res) {
 
 exports.getUserFriends = function(req, res) {
   userModel.findOne({_id : req.body.userId}).exec()
-    .then((user) => {res.send(user.friends)})     //sends friends
-    .catch((error) => res.send(error.message));         //sends Error object  
+    .then((user) => {res.send(user.friends)}) 
+    .catch((error) => res.send(error.message));    
 };  
-
 
 exports.addFriendRequest = function(req, res) {
   userModel.findUserAndDoAnActionWithFriend(req.body.userId, req.body.friendId, 'addFriendRequest')
@@ -45,18 +44,18 @@ exports.addFriendRequest = function(req, res) {
 
 exports.approveFriendRequest = function(req, res) {
   userModel.findUserAndDoAnActionWithFriend(req.body.userId, req.body.friendId, 'approveFriendRequest')
-    .then((friend) => res.send(friend))   //sends friend object
-    .catch((error) => res.send(error.message)); //sends Error object
+    .then((friend) => res.send(friend))
+    .catch((error) => res.send(error.message)); 
 };
 
 exports.rejectFriendRequest = function(req, res) {
   userModel.findUserAndDoAnActionWithFriend(req.body.userId, req.body.friendId, 'rejectFriendRequest')
-    .then((friend) => res.send(friend))   //sends friend object
-    .catch((error) => res.send(error.message)); //sends Error object
+    .then((friend) => res.send(friend))
+    .catch((error) => res.send(error.message)); 
 };
 
 exports.deleteFriendRequest = function(req, res) {
   userModel.findUserAndDoAnActionWithFriend(req.body.userId, req.body.friendId, 'deleteFriendRequest')
-    .then((friend) => res.send(friend))   //sends friend object
-    .catch((error) => res.send(error.message)); //sends Error object
+    .then((friend) => res.send(friend))   
+    .catch((error) => res.send(error.message)); 
 };
