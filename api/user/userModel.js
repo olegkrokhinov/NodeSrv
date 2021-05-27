@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 
+const roleModel = require('./roleModel');
+
 const message =  require('./userMessages');
 
 const FRIEND_STATUS_REQUEST = 'request';
@@ -8,14 +10,22 @@ const FRIEND_STATUS_REJECTED = 'rejected';
 
 
 const userSchema = new mongoose.Schema({
+  login: String,
+  passwordHash: String,
   name: String,
   age: Number,
   friends: [{
     friendId: {
       type: mongoose.Schema.Types.ObjectId, 
-      ref: 'userShema'},
+      ref: 'userSchema'},
     status: String, 
-  }]
+  }],
+  roles: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "roleSchema"
+    }
+  ]
 });
 
 userSchema.methods.addFriendRequest = function(friendId) {
@@ -113,4 +123,4 @@ userSchema.statics.findUserAndDoAnActionWithFriend = function(userId, friendId, 
   });
 };
 
-module.exports = mongoose.model('User', userSchema, 'users');
+module.exports = mongoose.model('User', userSchema, 'Users');

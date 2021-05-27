@@ -2,19 +2,24 @@ const express =  require('express');
 const router = express.Router();
 
 const userModel = require('./userModel');
-userController = require('./userController')
+controller = require('./userController')
 
-router.get('/', userController.getUsers);
 
-router.get('/:user', userController.getUser);
-router.put('/:user', userController.updateUser);
-router.post('/', userController.addUser);
-router.delete('/', userController.deleteUser);
+authMiddleware = require('../auth/auth.js')
+checkAccessTokenAndUserRole = [authMiddleware.verifyToken, authMiddleware.isUser];
 
-router.get('/:user/friends', userController.getUserFriends);  
-router.post('/:User/friends', userController.addFriendRequest);
-router.put('/:user/friends/:friend', userController.approveFriendRequest);
-router.delete('/:user/friends/:friend', userController.rejectFriendRequest);
-router.delete('/:user/friends', userController.deleteFriendRequest);
+
+router.get('/', checkAccessTokenAndUserRole, controller.getUsers);
+
+router.get('/:user', checkAccessTokenAndUserRole, controller.getUser);
+router.put('/:user', checkAccessTokenAndUserRole, controller.updateUser);
+router.post('/', checkAccessTokenAndUserRole, controller.addUser);
+router.delete('/', checkAccessTokenAndUserRole, controller.deleteUser);
+
+router.get('/:user/friends', checkAccessTokenAndUserRole, controller.getUserFriends);  
+router.post('/:User/friends', checkAccessTokenAndUserRole, controller.addFriendRequest);
+router.put('/:user/friends/:friend', checkAccessTokenAndUserRole, controller.approveFriendRequest);
+router.delete('/:user/friends/:friend', checkAccessTokenAndUserRole, controller.rejectFriendRequest);
+router.delete('/:user/friends', checkAccessTokenAndUserRole, controller.deleteFriendRequest);
 
 module.exports = router;
