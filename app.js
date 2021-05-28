@@ -8,6 +8,12 @@ const port = 4000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+app.all('*', (req, res, next) => {
+  res.header("Access-Control-Allow-Headers", "access-control-allow-origin, content-type")
+  res.header("Access-Control-Allow-Origin", "*");
+  next();
+});
+
 require('./appRoutes')(app);
 
 mongoose.connect(uri, {useNewUrlParser: true, useUnifiedTopology: true})

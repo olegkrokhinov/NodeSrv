@@ -6,7 +6,6 @@ const secretKey = "secret key"
 
 
 exports.login = function(req, res) {
-    
   userModel.findOne({login: req.body.userLogin})
     //.populate("roles")
     .exec()
@@ -40,14 +39,14 @@ exports.login = function(req, res) {
  
 
 exports.logout = function(req, res) {
-  alert('server logout');    
+  console.log('server logout');    
 };
 
 exports.signup = function(req, res) {
   
   let user = new userModel({
     login: req.body.userLogin,
-    passwordHash: bcrypt.hashSync(req.body.password, 8),
+    passwordHash: bcrypt.hashSync(req.body.userPassword, 8),
   });
 
   let userSave =  () => {
