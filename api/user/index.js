@@ -1,12 +1,13 @@
 const express =  require('express');
 const router = express.Router();
-
 const userModel = require('./userModel');
-controller = require('./userController')
+const controller = require('./userController')
 
+const passport = require('passport');
 
-authMiddleware = require('../auth/auth.js')
-checkAccessTokenAndUserRole = [authMiddleware.verifyToken, authMiddleware.isUser];
+const auth = require('../auth/auth.js')
+
+checkAccessTokenAndUserRole = [passport.authenticate('jwt', {session: false})];
 
 
 router.get('/', checkAccessTokenAndUserRole, controller.getUsers);
