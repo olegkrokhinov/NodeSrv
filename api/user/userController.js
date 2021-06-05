@@ -2,26 +2,30 @@ const userModel = require('./userModel');
 
 exports.getUsers = function(req, res) {
     userModel.find().exec()
-      .catch((error) => res.send(error.message))   
-      .then((user) => {res.send(user)})        
+    .then((user) => {res.send(user)})  
+    .catch((error) => res.send(error.message))   
+              
 };
 
 exports.getUser = function(req, res) {
     userModel.find({_id : req.body.userId}).exec()
-      .catch((error) => res.send(error.message))   
-       .then((user) => {res.send(user)});
+    .then((user) => {res.send(user)})
+    .catch((error) => res.send(error.message))   
+       
 };
 
 exports.updateUser = function(req, res) {
     userModel.findOneAndUpdate({_id: req.body.userId}, {name : req.body.name, age: req.body.age}).exec()
-      .catch((error) => res.send(error.message))
-      .then((user) => {res.send(user)});
+    .then((user) => {res.send(user)})  
+    .catch((error) => res.send(error.message))
+      
 };
 
 exports.addUser = function(req, res) {
   (new userModel({name: req.body.name, age: req.body.age})).save()
-    .catch((error) => res.send(error.message))     
-    .then((user) => {res.send(user)});
+  .then((user) => {res.send(user)})  
+  .catch((error) => res.send(error.message))     
+    
 };
 
 exports.deleteUser = function(req, res) {

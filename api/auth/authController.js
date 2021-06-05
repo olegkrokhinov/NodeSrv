@@ -2,7 +2,7 @@ const userModel = require('../user/userModel');
 const roleModel = require('../user/roleModel');
 const jwt = require('JsonWebToken');
 bcrypt = require('bcrypt')
-const secretKey = "secret key"
+const secret = process.env.SECRET;
 
 
 exports.login = function(req, res) {
@@ -20,7 +20,7 @@ exports.login = function(req, res) {
 
       let jwtAccessToken = jwt.sign(
         {userId: user._id}, 
-        secretKey, 
+        secret, 
         {expiresIn: '1h'}
       );
 
@@ -29,7 +29,7 @@ exports.login = function(req, res) {
         userName: user.name,
         userLogin: user.login,
         userRoles: user.roles,
-        userAccessToken: jwtAccessToken
+        userAccessToken: 'Bearer '+ jwtAccessToken
       });
     })
     .catch(err => {
