@@ -17,15 +17,15 @@ const userSchema = new mongoose.Schema({
   friends: [{
     friendId: {
       type: mongoose.Schema.Types.ObjectId, 
-      ref: 'userSchema'},
+      ref: 'User'},
     status: String, 
   }],
-  roles: [
+  roles: 
     {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "roleSchema"
+      type: [mongoose.Schema.Types.ObjectId],
+      ref: "Role"
     }
-  ]
+  
 });
 
 userSchema.methods.addFriendRequest = function(friendId) {

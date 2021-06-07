@@ -7,7 +7,7 @@ const passport = require('passport');
 
 const auth = require('../auth/auth.js')
 
-checkAccessTokenAndUserRole = [passport.authenticate('jwt', {session: false})];
+checkAccessTokenAndUserRole = [passport.authenticate('jwt', {session: false}), auth.isAdmin];
 
 
 router.get('/', checkAccessTokenAndUserRole, controller.getUsers);

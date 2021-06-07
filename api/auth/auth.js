@@ -38,26 +38,24 @@ isRole = (role, req, res, next) => {
     return;
   };
 
-  userModel.findById(req.user.Id).exec()
+  userModel.findById(req.user._id).exec()
   .then(user => {
 
     roleModel.find({_id: { $in: user.roles }}).exec()
         .then(roles =>{
-            for (let i = 0; i < roles.length; i++) {
-                if (roles[i].name === role) {
-                  next();
-                }
+          for (let i = 0; i < roles.length; i++) {
+              if (roles[i].name === role) {
+                return next();
               }
-      
-            return res.status(403).send({ message: "Require "+ role +" role!" });
+          }
+          res.status(403).send('Require '+ role +' role!');
         })
         .catch(err => {
-          res.status(500).send({ message: err.message });   
-        })
-  
+          res.status(500).send(err.message);   
+        }) 
   })
   .catch(err => {
-      res.status(500).send({ message: err.message });
+    res.status(500).send(err.message );
   })
    
     

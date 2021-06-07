@@ -7,13 +7,13 @@ const secret = process.env.SECRET;
 
 exports.login = function(req, res) {
   userModel.findOne({login: req.body.userLogin})
-    //.populate("roles")
+    .populate("roles")
     .exec()
     .then(user => {
       if (!user) {
         return res.status(404).send({ message: "User Not found." });
       }
-      
+
       if (!bcrypt.compareSync(req.body.userPassword, user.passwordHash)) {
         return res.status(401).send({ jwtAccessToken: null, message: "Invalid Password!"});   
       }
@@ -39,7 +39,7 @@ exports.login = function(req, res) {
  
 
 exports.logout = function(req, res) {
-  console.log('server logout');    
+      
 };
 
 exports.signup = function(req, res) {
@@ -52,7 +52,7 @@ exports.signup = function(req, res) {
   let userSave =  () => {
     user.save()
     .then((user) => {
-      res.send({ message: "User was registered successfully!" })
+      res.status(200).send({ message: "User was registered successfully!" })
     })
     .catch((err) => {
       res.status(500).send({ message: err.message });
