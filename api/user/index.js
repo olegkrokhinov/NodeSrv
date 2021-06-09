@@ -12,15 +12,15 @@ checkAccessTokenAndUserRole = [passport.authenticate('jwt', {session: false}), a
 
 router.get('/', checkAccessTokenAndUserRole, controller.getUsers);
 
-router.get('/:user', checkAccessTokenAndUserRole, controller.getUser);
-router.put('/:user', checkAccessTokenAndUserRole, controller.updateUser);
-router.post('/', checkAccessTokenAndUserRole, controller.addUser);
-router.delete('/', checkAccessTokenAndUserRole, controller.deleteUser);
+//router.get('/:user', checkAccessTokenAndUserRole, controller.getUser);
+//router.put('/:user', checkAccessTokenAndUserRole, controller.updateUser);
+//router.post('/', checkAccessTokenAndUserRole, controller.addUser);
+//router.delete('/', checkAccessTokenAndUserRole, controller.deleteUser);
 
-router.get('/:user/friends', checkAccessTokenAndUserRole, controller.getUserFriends);  
-router.post('/:User/friends', checkAccessTokenAndUserRole, controller.addFriendRequest);
-router.put('/:user/friends/:friend', checkAccessTokenAndUserRole, controller.approveFriendRequest);
-router.delete('/:user/friends/:friend', checkAccessTokenAndUserRole, controller.rejectFriendRequest);
-router.delete('/:user/friends', checkAccessTokenAndUserRole, controller.deleteFriendRequest);
+//router.get('/:user/friends', checkAccessTokenAndUserRole, controller.getUserFriends);  
+//router.post('/:User/friends', checkAccessTokenAndUserRole, controller.addFriendRequest);
+//router.put('/:user/friends/:friend', checkAccessTokenAndUserRole, controller.approveFriendRequest);
+//router.delete('/:user/friends/:friend', checkAccessTokenAndUserRole, controller.rejectFriendRequest);
+//router.delete('/:user/friends', checkAccessTokenAndUserRole, controller.deleteFriendRequest);
 
 module.exports = router;
