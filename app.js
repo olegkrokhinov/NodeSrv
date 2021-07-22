@@ -3,8 +3,12 @@ require('dotenv').config();
 const express = require('express');
 const app = express();
 const mongoose = require('mongoose');
+const fileUpload = require('express-fileupload');
 
 //const passport = require('passport');
+app.use(fileUpload());
+
+app.use('/images/toys', express.static(`${__dirname}/images/toys`));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
