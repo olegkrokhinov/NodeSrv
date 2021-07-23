@@ -10,8 +10,7 @@ exports.getToys = function(req, res) {
 
 };            
 
-function saveImage(reqFiles){
-  
+function saveImage(reqfiles){
   let uploadPath = '';
   let imageFile = '';
   if (reqfiles) {
@@ -25,10 +24,8 @@ function saveImage(reqFiles){
       }
     });
   };
-  
   return uploadPath;
 }
-
 
 exports.addToy = function(req, res) {
     
