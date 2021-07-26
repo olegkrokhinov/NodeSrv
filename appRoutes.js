@@ -9,7 +9,7 @@ module.exports =  function loadRoutesToApp(app) {
     
   app.use('/users', require('./api/user'));
   app.use('/auth', require('./api/auth')); 
-  app.use('/toys', require('./api/game/toy'));   
+  app.use('/items', require('./api/game/item'));   
 
  // app.use((req, res, next) => {
  //     res.send(`The route ${req.path} can't be found`);

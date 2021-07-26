@@ -8,7 +8,7 @@ const fileUpload = require('express-fileupload');
 //const passport = require('passport');
 app.use(fileUpload());
 
-app.use('/images/toys', express.static(`${__dirname}/images/toys`));
+app.use('/images/items', express.static(`${__dirname}/images/items`));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
