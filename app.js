@@ -15,7 +15,6 @@ app.use(express.urlencoded({ extended: true }));
 
 require('./api/auth/passport')(app)
 require('./appRoutes')(app);
-
 mongoose.connect(process.env.DB_URI, {useNewUrlParser: true, useUnifiedTopology: true})
 .then(()=> {
   app.listen(process.env.PORT, function(){
@@ -25,6 +24,6 @@ mongoose.connect(process.env.DB_URI, {useNewUrlParser: true, useUnifiedTopology:
 .catch(error=> console.log(`Error: `+ error));
 
 process.on("SIGINT", () => {
-  mongoose.disconnect(); 
+  mongoose.disconnect();
   process.exit();
 })
