@@ -12,9 +12,6 @@ router.get('/', checkAccessTokenAndUserRole, controller.getItems);
 router.get('/:itemId', checkAccessTokenAndUserRole, controller.getItem);
 router.post('/', checkAccessTokenAndUserRole, controller.addItem);
 router.put('/', checkAccessTokenAndUserRole, controller.updItem);
-router.delete('/', checkAccessTokenAndUserRole, controller.delItem);
-
-
-
+router.delete('/:itemId', checkAccessTokenAndUserRole, controller.delItem);
 
 module.exports = router;

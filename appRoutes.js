@@ -4,6 +4,7 @@ module.exports =  function loadRoutesToApp(app) {
   app.all('*', (req, res, next) => {
     res.header("Access-Control-Allow-Headers", "access-control-allow-origin, content-type, authorization")
     res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Methods", "*");
     next();
   });
     

@@ -10,10 +10,8 @@ function saveImage(reqfiles){
     imageFile = reqfiles.itemImageFile;
     realUploadPath = path.join(appDir, '/images/items/', imageFile.name);
     //uploadPath = path.join('/images/items/', imageFile.name);
-    uploadPath = path.posix.join(path.posix.sep, '/images/items/', imageFile.name)
-
+    uploadPath = path.posix.join(path.posix.sep, '/images/items/', imageFile.name);
     imageFile.mv(realUploadPath, err => {
-
       if (err) {
         //return res.status(500).send(err);
       }
@@ -31,13 +29,13 @@ exports.getItems = function(req, res) {
 };
 
 exports.getItem = function(req, res) {
-  model.findOne({_id: req.body.itemId}).exec()
+  model.findOne({_id: req.params.itemId}).exec()
     .then(item => res.status(200).send(item))
     .catch(error => res.status(500).send(error.message));
 };
 
 exports.addItem = function(req, res) {
-
+ 
   new model({
     name: req.body.itemName,
     description: req.body.itemDescription,
@@ -49,18 +47,29 @@ exports.addItem = function(req, res) {
 };
 
 exports.updItem = function(req, res) {
+  let fieldsToUpdate = {
+    name : req.body.itemName,
+    description: req.body.itemDescription};
+    
+  if (req.body.emptyImage=='true'){
+     fieldsToUpdate = {...fieldsToUpdate, imageUploadPath: ''};
+  };
+  if (req.files){
+    fieldsToUpdate = {...fieldsToUpdate, imageUploadPath: saveImage(req.files)}
+  };
 
-  model.findOneAndUpdate({_id: req.body.itemId}, {
-    name : req.body.name,
-    description: req.body.description,
-    imageUploadPath: saveImage(req.files)}).exec()
-  .then(item => res.status(200).send(item))
+  model.findOneAndUpdate(
+    {_id: req.body.itemId}, 
+    {$set: fieldsToUpdate})
+  .exec()
+  .then((item) => { 
+    res.status(200).send(item)})
   .catch(error => res.status(500).send(error.message))
 
 };
 
 exports.delItem = function(req, res) {
-  model.findOneAndDelete({_id: req.body.itemId}).exec()
+  model.findOneAndDelete({_id: req.params.itemId}).exec()
     .then(item => res.status(200).send(item))
     .catch(error => res.status(500).send(error.message));
 };
