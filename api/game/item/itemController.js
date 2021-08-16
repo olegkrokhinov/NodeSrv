@@ -7,9 +7,8 @@ function saveImage(reqfiles){
   let uploadPath = '';
   let imageFile = '';
   if (reqfiles) {
-    imageFile = reqfiles.itemImageFile;
+    imageFile = reqfiles.itemLocalImageFile;
     realUploadPath = path.join(appDir, '/images/items/', imageFile.name);
-    //uploadPath = path.join('/images/items/', imageFile.name);
     uploadPath = path.posix.join(path.posix.sep, '/images/items/', imageFile.name);
     imageFile.mv(realUploadPath, err => {
       if (err) {

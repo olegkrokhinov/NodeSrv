@@ -39,7 +39,7 @@ exports.login = function(req, res) {
  
 
 exports.logout = function(req, res) {
-      
+  res.status(200).send('');  
 };
 
 exports.signup = function(req, res) {
