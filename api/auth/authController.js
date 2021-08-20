@@ -5,6 +5,27 @@ bcrypt = require('bcrypt')
 const secret = process.env.SECRET;
 
 
+exports.refresh = function(req, res){
+  if (!req.user) {
+        return res.status(404).send({ message: "User Not found." });
+      } 
+  
+  let jwtAccessToken = jwt.sign(
+      {userId: req.user._id}, 
+      secret, 
+      {expiresIn: '1h'}
+  );
+
+  res.status(200).send({
+        userId: req.user._id,
+        userName: req.user.name,
+        userLogin: req.user.login,
+        userRoles: req.user.roles,
+        userAccessToken: 'Bearer '+ jwtAccessToken
+      });
+
+}
+
 exports.login = function(req, res) {
   userModel.findOne({login: req.body.userLogin})
     .populate("roles")
@@ -60,7 +81,6 @@ exports.signup = function(req, res) {
   }
 
   if (req.body.roles) {
-    
     roleModel.find({name: { $in: req.body.roles }}).exec()
       .then((roles) => {
         user.roles = roles.map(role => role._id);
@@ -69,9 +89,7 @@ exports.signup = function(req, res) {
       .catch((err) => {
         res.status(500).send({ message: err.message });
       });
-  
   } else {
-    
     roleModel.findOne({ name: "user" })
       .then(role => {
         user.roles.push(role._id);
@@ -80,6 +98,5 @@ exports.signup = function(req, res) {
       .catch(err => {
         res.status(500).send({ message: err.message });
       });
-
   }    
 };
